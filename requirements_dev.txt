@@ -1,0 +1,2 @@
+coverage==7.2.3
+unittest-parallel==1.5.3
