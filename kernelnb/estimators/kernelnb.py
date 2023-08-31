@@ -83,7 +83,7 @@ class KernelNB(BaseEstimator, ClassifierMixin):
 
     def _create_cond_probs_kdes(self,X,y):
         self._check_n_features(X,True)
-         
+        n_objects = X.shape[0] 
         #Array of conditional probability estimators P(X|C)
         self.kernel_estimators_ = np.empty((self.n_classes_, self.n_features_in_), dtype=object)
         for class_idx in range(self.n_classes_):
@@ -100,7 +100,7 @@ class KernelNB(BaseEstimator, ClassifierMixin):
                     leaf_size=self.leaf_size,
                     metric_params=self.metric_params
                 )
-                row_select = np.equal(y,self.classes_[class_idx])
+                row_select = y == np.asanyarray( [ self.classes_[class_idx] for _ in range(n_objects) ] ) 
                 data_subset= X[row_select,attrib_idx:(attrib_idx+1)]
                 self.kernel_estimators_[class_idx, attrib_idx].fit(data_subset)
 
