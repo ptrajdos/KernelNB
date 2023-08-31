@@ -1,7 +1,7 @@
 ROOTDIR=$(realpath $(dir $(firstword $(MAKEFILE_LIST))))
 
 
-SRCDIR=${ROOTDIR}/dexterous_bioprosthesis_2021_raw_datasets_framework
+SRCDIR=${ROOTDIR}/kernelnb
 TESTDIR=${ROOTDIR}/tests
 COVDIR=${ROOTDIR}/htmlcov_p
 COVERAGERC=${ROOTDIR}/.coveragerc

@@ -1,15 +1,9 @@
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, check_array, check_is_fitted
-from sklearn.utils import check_array, check_random_state
-from sklearn.utils.validation import check_X_y
-from sklearn.utils.validation import _num_samples, _num_features
+from sklearn.base import BaseEstimator, ClassifierMixin,check_is_fitted
+from sklearn.utils.validation import _num_samples
 from sklearn.neighbors import KernelDensity
-from sklearn.utils.multiclass import class_distribution
-from sklearn.preprocessing import normalize
 
-#TODO for dev code only
-from sklearn.naive_bayes import GaussianNB
-from sklearn.dummy import DummyClassifier
+from sklearn.preprocessing import normalize
 
 
 class KernelNB(BaseEstimator, ClassifierMixin):
@@ -124,12 +118,6 @@ class KernelNB(BaseEstimator, ClassifierMixin):
         
         self._check_regression(y)
         
-        #Not indicates regression
-        # if y.dtype == np.float64:
-        #     raise ValueError("V")
-        # X,y =  check_X_y(X,y,y_numeric=False)
-
-        
         self._calc_priors(y)
         self._create_cond_probs_kdes(X,y)
        
@@ -155,9 +143,7 @@ class KernelNB(BaseEstimator, ClassifierMixin):
         return post_probs
 
     def _validate_predict_input(self,X):
-        # X = check_array(X, accept_sparse="csr",
-        #                             order="C", accept_large_sparse=False)
-
+        
         X= self._validate_data(X, accept_sparse=False,
                                     order="C", accept_large_sparse=False,reset=False)
         
@@ -181,21 +167,3 @@ class KernelNB(BaseEstimator, ClassifierMixin):
         
         return response
     
-    # def _more_tags(self):
-    #     return {
-    #         ''
-    #     }
-
-from sklearn.datasets import load_iris
-
-if __name__ == '__main__':
-    
-    X,y = load_iris(return_X_y=True)
-
-    clf = KernelNB()
-
-    clf.fit(X,y)
-
-    y_pred = clf.predict(X)
-
-    print("Pred: ", y_pred)
