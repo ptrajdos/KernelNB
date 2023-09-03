@@ -5,6 +5,7 @@ from sklearn.neighbors import KernelDensity
 
 from sklearn.preprocessing import normalize
 from scipy.special import softmax
+from scipy._lib._util import _asarray_validated
 
 
 class KernelNB(BaseEstimator, ClassifierMixin):
@@ -79,7 +80,7 @@ class KernelNB(BaseEstimator, ClassifierMixin):
     def _calc_priors(self,y):
         self.classes_, counts = np.unique(y,return_counts=True)
         self.n_classes_ = len(self.classes_)
-        self.class_priors_ = counts/np.sum(counts)
+        self.class_priors_ = np.log(counts/np.sum(counts))
 
 
     def _create_cond_probs_kdes(self,X,y):
@@ -124,6 +125,17 @@ class KernelNB(BaseEstimator, ClassifierMixin):
        
         return self
 
+    def _softmax(self,x,axis=None):
+        x = _asarray_validated(x, check_finite=False)
+        
+        min_val = np.finfo(x.dtype).min
+        x[x == -np.inf] = min_val
+        x_max = np.amax(x, axis=axis, keepdims=True)
+        
+        exp_x_shifted = np.exp(x - x_max)
+        return exp_x_shifted / np.sum(exp_x_shifted, axis=axis, keepdims=True)
+        
+
     def _predict_proba(self, X):
 
         n_objects = _num_samples(X)
@@ -134,9 +146,10 @@ class KernelNB(BaseEstimator, ClassifierMixin):
             for attrib_idx in range(self.n_features_in_):
                 cond_probs_logs[:,class_idx,attrib_idx] = self.kernel_estimators_[class_idx,attrib_idx].score_samples(X[:,attrib_idx:(attrib_idx+1)])
 
+    
         acc_probs_logs = np.sum(cond_probs_logs, axis=2)
         acc_probs_logs[:,::] += self.class_priors_
-        post_probs = softmax(acc_probs_logs,axis=1)
+        post_probs = self._softmax(acc_probs_logs,axis=1)
 
         return post_probs
 
