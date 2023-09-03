@@ -4,6 +4,7 @@ from sklearn.utils.validation import _num_samples
 from sklearn.neighbors import KernelDensity
 
 from sklearn.preprocessing import normalize
+from scipy.special import softmax
 
 
 class KernelNB(BaseEstimator, ClassifierMixin):
@@ -127,18 +128,15 @@ class KernelNB(BaseEstimator, ClassifierMixin):
 
         n_objects = _num_samples(X)
 
-        cond_probs = np.zeros((n_objects,self.n_classes_, self.n_features_in_))
+        cond_probs_logs = np.zeros((n_objects,self.n_classes_, self.n_features_in_))
 
         for class_idx in range(self.n_classes_):
             for attrib_idx in range(self.n_features_in_):
-                cond_probs[:,class_idx,attrib_idx] = self.kernel_estimators_[class_idx,attrib_idx].score_samples(X[:,attrib_idx:(attrib_idx+1)])
+                cond_probs_logs[:,class_idx,attrib_idx] = self.kernel_estimators_[class_idx,attrib_idx].score_samples(X[:,attrib_idx:(attrib_idx+1)])
 
-        
-        cond_probs = np.exp(cond_probs)
-        acc_probs = np.prod(cond_probs, axis=2)
-
-        post_probs =  np.matmul(acc_probs, np.diag(self.class_priors_))
-        post_probs = normalize(post_probs,axis=1,norm='l1')
+        acc_probs_logs = np.sum(cond_probs_logs, axis=2)
+        acc_probs_logs[:,::] += self.class_priors_
+        post_probs = softmax(acc_probs_logs,axis=1)
 
         return post_probs
 
