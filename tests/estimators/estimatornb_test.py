@@ -5,18 +5,16 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.datasets import load_iris, load_digits
 import numpy as np
 from sklearn.model_selection import train_test_split
+from kernelnb.estimators.estimatornb import EstimatorNB
+from sklearn.mixture import GaussianMixture
 
-from kernelnb.estimators.kernelnb import KernelNB
-
-class KernelNBTest(unittest.TestCase):
+class EstimatorNBTest(unittest.TestCase):
 
     def get_estimators(self):
 
         return[
-            KernelNB(),
-            KernelNB(kernel='epanechnikov'),
-            KernelNB(bandwidth='scott'),
-            KernelNB( kernel='epanechnikov',bandwidth='scott'),
+            EstimatorNB(),
+            EstimatorNB(estimator_class=GaussianMixture, estimator_parameters={'n_components':1})
 
         ]
     
@@ -99,7 +97,7 @@ class KernelNBTest(unittest.TestCase):
             metric_val = cohen_kappa_score(y_test, y_pred)
             self.assertTrue(metric_val>0, "Classifier should be better than random!")
 
-            probas = clf.predict_proba(X)
+            probas = clf.predict_proba(X_test)
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(  np.isnan( probas).any(), "NaNs in probability predictions" )
