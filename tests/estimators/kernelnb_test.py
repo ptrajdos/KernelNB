@@ -99,7 +99,7 @@ class KernelNBTest(unittest.TestCase):
             metric_val = cohen_kappa_score(y_test, y_pred)
             self.assertTrue(metric_val>0, "Classifier should be better than random!")
 
-            probas = clf.predict_proba(X)
+            probas = clf.predict_proba(X_test)
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(  np.isnan( probas).any(), "NaNs in probability predictions" )
