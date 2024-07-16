@@ -47,7 +47,7 @@ class EstimatorNB(BaseEstimator, ClassifierMixin):
                 self.estimators_[class_idx, attrib_idx].fit(data_subset)
 
     def _check_regression(self,y):
-        if np.issubsctype(y.dtype, np.floating):
+        if np.issubdtype(y.dtype, np.floating):
             y_i = y.astype('int')
             if not np.allclose(y,y_i):
                 raise ValueError("Unknown label type: {}".format(y.dtype))

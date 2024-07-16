@@ -1,4 +1,3 @@
-import platform
 import unittest
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import cohen_kappa_score
@@ -21,9 +20,6 @@ class EstimatorNBTest(unittest.TestCase):
 
     def test_sklearn(self):
 
-        #TODO Need to be fixed in more elegant way
-        if platform.system() == 'FreeBSD':
-            raise unittest.SkipTest("Skipping test according to a bug in threadpoolctl! ")
 
         for clf in self.get_estimators():
             for estimator, check in check_estimator(clf, generate_only=True):
