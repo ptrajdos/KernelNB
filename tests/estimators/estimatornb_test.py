@@ -22,8 +22,7 @@ class EstimatorNBTest(unittest.TestCase):
 
 
         for clf in self.get_estimators():
-            for estimator, check in check_estimator(clf, generate_only=True):
-                check(estimator)
+            check_estimator(clf)
 
     def test_iris(self):
         X, y = load_iris(return_X_y=True)
