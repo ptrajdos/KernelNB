@@ -16,7 +16,7 @@ setup(
         install_requires=[ 
                 'numpy>=1.22.4',
                 'joblib',
-                'scikit-learn>=1.2.2',
+                'scikit-learn>=1.2.2, <1.6.0',
         ],
         test_suite='test'
         )

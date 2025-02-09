@@ -10,7 +10,7 @@ from scipy._lib._util import _asarray_validated
 
 class EstimatorNB(BaseEstimator, ClassifierMixin):
     
-    def __init__(self, estimator_class=KernelDensity, estimator_parameters = {}) -> None:
+    def __init__(self, estimator_class=None, estimator_parameters = None) -> None:
 
         """
          Naive Bayes algorithm using some density estimator
@@ -37,10 +37,13 @@ class EstimatorNB(BaseEstimator, ClassifierMixin):
         n_objects = X.shape[0] 
         #Array of conditional probability estimators P(X|C)
         self.estimators_ = np.empty((self.n_classes_, self.n_features_in_), dtype=object)
+        effective_estimator_parameters = self.estimator_parameters if self.estimator_parameters is not None else dict()
+        effective_estimator_class = self.estimator_class if self.estimator_class is not None else KernelDensity
+
         for class_idx in range(self.n_classes_):
             for attrib_idx in range(self.n_features_in_):
 
-                self.estimators_[class_idx, attrib_idx] = self.estimator_class(**self.estimator_parameters)
+                self.estimators_[class_idx, attrib_idx] = effective_estimator_class(**effective_estimator_parameters)
 
                 row_select = y == np.asanyarray( [ self.classes_[class_idx] for _ in range(n_objects) ] ) 
                 data_subset= X[row_select,attrib_idx:(attrib_idx+1)]
@@ -117,12 +120,5 @@ class EstimatorNB(BaseEstimator, ClassifierMixin):
         response = np.asanyarray( [self.classes_[class_idx] for class_idx in class_indices ])
         
         return response
-    
-    def _more_tags(self):
-        return {
-            "_xfail_checks":{
-                "check_parameters_default_constructible":
-                    "transformer has 1 mandatory parameter",
-            }
-        }
+
     
