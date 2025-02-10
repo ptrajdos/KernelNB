@@ -181,15 +181,35 @@ class KernelNB(ClassifierMixin, BaseEstimator):
         exp_x_shifted = np.exp(x - x_max)
         return exp_x_shifted / np.sum(exp_x_shifted, axis=axis, keepdims=True)
 
-    def _predict_proba(self, X):
+    def _predict_proba(self, X, weights=None):
+        """
+        
+        Predicts the probability of each class for each object.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+            The input samples.
+
+        weights : array-like of shape (n_features,), default=None
+            The weights of each feature. If None, all features are weighted equally.
+
+        Returns
+        -------
+        array of shape (n_samples, n_classes)
+            The predicted probabilities.
+
+        """
 
         n_objects = _num_samples(X)
+        weights = weights if weights is not None else np.ones((self.n_features_in_))
+
 
         cond_probs_logs = np.zeros((n_objects, self.n_classes_, self.n_features_in_))
 
         for class_idx in range(self.n_classes_):
             for attrib_idx in range(self.n_features_in_):
-                cond_probs_logs[:, class_idx, attrib_idx] = self.kernel_estimators_[
+                cond_probs_logs[:, class_idx, attrib_idx] = weights[attrib_idx] * self.kernel_estimators_[
                     class_idx, attrib_idx
                 ].score_samples(X[:, attrib_idx : (attrib_idx + 1)])
 
