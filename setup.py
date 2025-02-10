@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
         name='kernelnb',
-        version ='0.0.1',
+        version ='0.1.0',
         author='Pawel Trajdos',
         author_email='pawel.trajdos@pwr.edu.pl',
         url = 'https://github.com/ptrajdos/KernelNB',
