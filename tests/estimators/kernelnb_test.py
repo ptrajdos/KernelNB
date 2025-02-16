@@ -43,6 +43,7 @@ class KernelNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -78,6 +79,7 @@ class KernelNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -116,6 +118,7 @@ class KernelNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -158,6 +161,7 @@ class KernelNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X_test.shape[0],
                 "Different number of objects in prediction",
@@ -183,6 +187,7 @@ class KernelNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X_n.shape[0],
                 "Different number of objects in prediction",

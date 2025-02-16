@@ -1,4 +1,5 @@
 import unittest
+from sklearn.neighbors import KernelDensity
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.metrics import cohen_kappa_score
 from sklearn.datasets import load_iris, load_digits
@@ -15,6 +16,14 @@ class EstimatorNBTest(unittest.TestCase):
         return [
             EstimatorNB(),
             EstimatorNB(
+                estimator_class=KernelDensity,
+                estimator_parameters={
+                    "bandwidth": "silverman",
+                    "kernel": "gaussian",
+                    "metric": "euclidean",
+                },
+            ),
+            EstimatorNB(
                 estimator_class=GaussianMixture,
                 estimator_parameters={"n_components": 1},
             ),
@@ -30,19 +39,19 @@ class EstimatorNBTest(unittest.TestCase):
         n_classes = len(np.unique(y))
         n_attribs = X.shape[1]
 
-
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.5, random_state=0
         )
 
         for clf in self.get_estimators():
             clf.fit(X_train, y_train)
-           
+
             random_weights = np.random.random(n_attribs)
             probas = clf._predict_proba(X, weights=random_weights)
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -79,6 +88,7 @@ class EstimatorNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -96,7 +106,6 @@ class EstimatorNBTest(unittest.TestCase):
                 np.allclose(prob_sums, np.asanyarray([1 for _ in range(X.shape[0])])),
                 "Not all sums close to one",
             )
-
 
     def test_digits(self):
         X, y = load_digits(return_X_y=True)
@@ -117,6 +126,7 @@ class EstimatorNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X.shape[0],
                 "Different number of objects in prediction",
@@ -160,6 +170,7 @@ class EstimatorNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X_test.shape[0],
                 "Different number of objects in prediction",
@@ -186,6 +197,7 @@ class EstimatorNBTest(unittest.TestCase):
 
             self.assertIsNotNone(probas, "Probabilites are None")
             self.assertFalse(np.isnan(probas).any(), "NaNs in probability predictions")
+            self.assertFalse(np.isinf(probas).any(), "Inf in probability predictions")
             self.assertTrue(
                 probas.shape[0] == X_n.shape[0],
                 "Different number of objects in prediction",
