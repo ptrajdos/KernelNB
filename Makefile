@@ -16,6 +16,7 @@ UNITTEST_PARALLEL = unittest-parallel
 PDOC= pdoc3
 PYTHON=python
 PIP=pip
+PYTEST=pytest
 
 LOGDIR=${ROOTDIR}/testlogs
 LOGFILE=${LOGDIR}/`date +'%y-%m-%d_%H-%M-%S'`.log
@@ -36,6 +37,7 @@ clean:
 
 venv:
 	${PYTHON} -m venv ${VENV_SUBDIR}
+	${ACTIVATE}; ${PIP} install pip -U
 	${ACTIVATE}; ${PIP} install -e ${ROOTDIR} --prefer-binary --log ${INSTALL_LOG_FILE} -r ${REQ_FILE}
 
 test: venv
@@ -48,5 +50,9 @@ test_parallel: venv
 	mkdir -p ${COVDIR} ${LOGDIR}
 	${ACTIVATE}; ${UNITTEST_PARALLEL} --class-fixtures -v -t ${ROOTDIR} -s ${TESTDIR} -p '*_test.py' --coverage --coverage-rcfile ./.coveragerc --coverage-source ${SRCDIR} --coverage-html ${COVDIR}  2>&1 |tee -a ${LOGFILE}
 
-docs:
+docs: venv
 	${ACTIVATE}; $(PDOC) --force --html ${SRCDIR} --output-dir ${DOCS_DIR}
+
+profile: venv
+	
+	${ACTIVATE}; ${PYTEST} -n auto --cov-report=html --cov=${SRCDIR} --profile ${TESTDIR}
