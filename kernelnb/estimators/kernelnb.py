@@ -258,15 +258,15 @@ class KernelNB(ClassifierMixin, BaseEstimator):
 
         return X
 
-    def predict_proba(self, X):
+    def predict_proba(self, X, weights=None):
         self._validate_predict_input(X)
-        return self._predict_proba(X)
+        return self._predict_proba(X, weights=weights)
 
-    def predict(self, X):
+    def predict(self, X, weights=None):
 
         X = self._validate_predict_input(X)
 
-        post_probs = self._predict_proba(X)
+        post_probs = self._predict_proba(X, weights=weights)
         class_indices = np.argmax(post_probs, axis=1)
         response = np.asanyarray(
             [self.classes_[class_idx] for class_idx in class_indices]
