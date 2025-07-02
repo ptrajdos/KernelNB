@@ -273,3 +273,26 @@ class KernelNB(ClassifierMixin, BaseEstimator):
         )
 
         return response
+
+    def sample(self, n_samples=1):
+        """
+        Generates samples from the model.
+
+        Parameters
+        ----------
+        n_samples : int, default=1
+            The number of samples to generate.
+
+    
+        Returns
+        -------
+        array of shape (n_samples, n_features)
+            The generated samples.
+        """
+        samples = np.empty((n_samples, self.n_features_in_))
+        labels_idxs = np.random.choice(range(self.n_classes_), size=n_samples, p=np.exp(self.class_priors_))
+        for sample_idx, label_idx in enumerate(labels_idxs):
+             for attrib_idx in range(self.n_features_in_):
+                sample = self.kernel_estimators_[label_idx, attrib_idx].sample(1)
+                samples[sample_idx, attrib_idx] = sample[0, 0]
+        return samples, labels_idxs

@@ -216,6 +216,28 @@ class EstimatorNBTest(unittest.TestCase):
                 "Not all sums close to one",
             )
 
+    def test_sample(self):
+        X, y = load_iris(return_X_y=True)
+        
+        samples_list = [1,3,10,200]
+
+        for clf in self.get_estimators():
+            with self.subTest(clf=clf):
+                clf.fit(X, y)
+                for n_samples in samples_list:
+                    try:
+                        X_s, y_s = clf.sample(n_samples=n_samples)
+                        self.assertIsNotNone(X_s, "Sampled features are None")
+                        self.assertIsNotNone(y_s, "Sampled labels are None")
+                        self.assertFalse(np.isnan(X_s).any(), "NaNs in sampled features")
+                        self.assertFalse(np.isinf(X_s).any(), "Inf in sampled features")
+                        self.assertFalse(np.isnan(y_s).any(), "NaNs in sampled labels")
+                        self.assertFalse(np.isinf(y_s).any(), "Inf in sampled labels")
+                        self.assertEqual(X_s.shape[0], n_samples, "Wrong number of samples")
+                        self.assertEqual(X_s.shape[1], X.shape[1], "Wrong number of features")
+                        self.assertEqual(len(y_s), n_samples, "Wrong number of labels")
+                    except NotImplementedError:
+                        self.skipTest("Sample method not implemented for this estimator")
 
 if __name__ == "__main__":
     unittest.main()
