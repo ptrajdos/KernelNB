@@ -15,8 +15,10 @@ COVERAGE = coverage
 UNITTEST_PARALLEL = unittest-parallel
 PDOC= pdoc3
 PYTHON=python
+SYSPYTHON=python
 PIP=pip
 PYTEST=pytest
+VENV_OPTIONS=
 
 LOGDIR=${ROOTDIR}/testlogs
 LOGFILE=${LOGDIR}/`date +'%y-%m-%d_%H-%M-%S'`.log
@@ -36,8 +38,7 @@ clean:
 	rm -rf ${VENV_SUBDIR}
 
 venv:
-	${PYTHON} -m venv ${VENV_SUBDIR}
-	${ACTIVATE}; ${PYTHON} -m ${PIP} install pip -U
+	${SYSPYTHON} -m venv --upgrade-deps ${VENV_OPTIONS} ${VENV_SUBDIR}
 	${ACTIVATE}; ${PIP} install -e ${ROOTDIR} --prefer-binary --log ${INSTALL_LOG_FILE} -r ${REQ_FILE}
 
 test: venv
