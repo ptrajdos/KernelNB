@@ -39,21 +39,25 @@ clean:
 
 venv:
 	${SYSPYTHON} -m venv --upgrade-deps ${VENV_OPTIONS} ${VENV_SUBDIR}
-	${ACTIVATE}; ${PIP} install -e ${ROOTDIR} --prefer-binary --log ${INSTALL_LOG_FILE} -r ${REQ_FILE}
+	${ACTIVATE}; ${PYTHON} -m ${PIP} install wheel setuptools pypackages
+	
 
-test: venv
+pypackages: venv
+	${ACTIVATE}; ${PYTHON} -m ${PIP} install -e ${ROOTDIR} --prefer-binary --log ${INSTALL_LOG_FILE} -r ${REQ_FILE}
+
+test: pypackages
 	mkdir -p ${LOGDIR}  
 	${ACTIVATE}; ${COVERAGE} run --branch  --source=${SRCDIR} -m unittest discover -p '*_test.py' -v -s ${TESTDIR} 2>&1 |tee -a ${LOGFILE}
 	${ACTIVATE}; ${COVERAGE} html --show-contexts
 
 
-test_parallel: venv
+test_parallel: pypackages
 	mkdir -p ${COVDIR} ${LOGDIR}
 	${ACTIVATE}; ${UNITTEST_PARALLEL} --class-fixtures -v -t ${ROOTDIR} -s ${TESTDIR} -p '*_test.py' --coverage --coverage-rcfile ./.coveragerc --coverage-source ${SRCDIR} --coverage-html ${COVDIR}  2>&1 |tee -a ${LOGFILE}
 
-docs: venv
+docs: pypackages
 	${ACTIVATE}; $(PDOC) --force --html ${SRCDIR} --output-dir ${DOCS_DIR}
 
-profile: venv
+profile: pypackages
 	
 	${ACTIVATE}; ${PYTEST} -n auto --cov-report=html --cov=${SRCDIR} --profile ${TESTDIR}

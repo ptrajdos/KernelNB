@@ -10,6 +10,61 @@ from packaging import version
 import sklearn
 
 
+if version.parse(sklearn.__version__) >= version.parse("1.6"):
+    from sklearn.utils.validation import _check_n_features
+    def _check_n_features_internal(estimator,X, reset):
+        _check_n_features(estimator=estimator,X=X,reset=reset)
+else:
+    def _check_n_features_internal(estimator,X, reset):
+        estimator._check_n_features(X, reset)
+
+if version.parse(sklearn.__version__) >= version.parse("1.6"):
+    from sklearn.utils.validation import validate_data
+    def _validate_fit_external(estimator,X, y):
+            X, y = validate_data(
+            estimator,
+            X=X,
+            y=y,
+            accept_sparse=False,
+            order="C",
+            accept_large_sparse=False,
+            y_numeric=False,
+            reset=True,
+        )
+            return X, y
+else:
+        def _validate_fit_external(estimator,X, y):
+            X, y = estimator._validate_data(
+                X,
+                y,
+                accept_sparse=False,
+                order="C",
+                accept_large_sparse=False,
+                y_numeric=False,
+                reset=True,
+            )
+            return X, y
+        
+
+if version.parse(sklearn.__version__) >= version.parse("1.6"):
+    from sklearn.utils.validation import validate_data
+    def _validate_predict_input_ext(estimator,X):
+
+        X = validate_data(
+            estimator,
+            X=X,
+            accept_sparse=False,
+            order="C",
+            accept_large_sparse=False,
+            reset=False,
+        )
+        return X
+else:
+    def _validate_predict_input_ext(estimator,X):
+        X = estimator._validate_data(
+            X, accept_sparse=False, order="C", accept_large_sparse=False, reset=False
+        )
+        return X
 class KernelNB(ClassifierMixin, BaseEstimator):
 
     def __init__(
@@ -92,13 +147,10 @@ class KernelNB(ClassifierMixin, BaseEstimator):
         self.n_classes_ = len(self.classes_)
         self.class_priors_ = np.log(counts / np.sum(counts))
 
+    
+
     def _create_cond_probs_kdes(self, X, y):
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import _check_n_features
-            _check_n_features(estimator=self,X=X,reset=True)
-        else:
-            self._check_n_features(X, True)
+        _check_n_features_internal(self,X, reset=True)
         n_objects = X.shape[0]
         # Array of conditional probability estimators P(X|C)
         self.kernel_estimators_ = np.empty(
@@ -131,35 +183,8 @@ class KernelNB(ClassifierMixin, BaseEstimator):
                 raise ValueError("Unknown label type: {}".format(y.dtype))
 
     def _fit_validate(self, X, y):
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import validate_data
-            X, y = validate_data(
-                    self,
-                    X=X,
-                    y=y,
-                    accept_sparse=False,
-                    order="C",
-                    accept_large_sparse=False,
-                    y_numeric=False,
-                    reset=True,
-                )
-            return X, y
-
-
-
-        X, y = self._validate_data(
-            X,
-            y,
-            accept_sparse=False,
-            order="C",
-            accept_large_sparse=False,
-            y_numeric=False,
-            reset=True,
-        )
-        return X, y
+        return _validate_fit_external(self,X, y)
         
-
     def fit(self, X, y):
 
         X, y = self._fit_validate(X, y)
@@ -221,23 +246,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
 
     def _validate_predict_input(self, X):
         
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import validate_data
-
-            X = validate_data(
-                self,
-                X=X,
-                accept_sparse=False,
-                order="C",
-                accept_large_sparse=False,
-                reset=False,
-            )
-        else:
-
-            X = self._validate_data(
-                X, accept_sparse=False, order="C", accept_large_sparse=False, reset=False
-            )
+        X = _validate_predict_input_ext(self,X)
 
         check_is_fitted(
             self,
@@ -250,11 +259,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
             ),
         )
     
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import _check_n_features
-            _check_n_features(estimator=self,X=X,reset=False)
-        else:
-            self._check_n_features(X, False)
+        _check_n_features_internal(self, X, reset=False)
 
         return X
 
