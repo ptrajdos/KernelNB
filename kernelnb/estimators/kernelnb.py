@@ -6,65 +6,9 @@ from sklearn.neighbors import KernelDensity
 from sklearn.preprocessing import normalize
 from scipy.special import softmax
 from scipy._lib._util import _asarray_validated
-from packaging import version
-import sklearn
 
+from kernelnb.compat.sklearn_compat import check_n_features_internal, validate_fit_external, validate_predict_input_ext
 
-if version.parse(sklearn.__version__) >= version.parse("1.6"):
-    from sklearn.utils.validation import _check_n_features
-    def _check_n_features_internal(estimator,X, reset):
-        _check_n_features(estimator=estimator,X=X,reset=reset)
-else:
-    def _check_n_features_internal(estimator,X, reset):
-        estimator._check_n_features(X, reset)
-
-if version.parse(sklearn.__version__) >= version.parse("1.6"):
-    from sklearn.utils.validation import validate_data
-    def _validate_fit_external(estimator,X, y):
-            X, y = validate_data(
-            estimator,
-            X=X,
-            y=y,
-            accept_sparse=False,
-            order="C",
-            accept_large_sparse=False,
-            y_numeric=False,
-            reset=True,
-        )
-            return X, y
-else:
-        def _validate_fit_external(estimator,X, y):
-            X, y = estimator._validate_data(
-                X,
-                y,
-                accept_sparse=False,
-                order="C",
-                accept_large_sparse=False,
-                y_numeric=False,
-                reset=True,
-            )
-            return X, y
-        
-
-if version.parse(sklearn.__version__) >= version.parse("1.6"):
-    from sklearn.utils.validation import validate_data
-    def _validate_predict_input_ext(estimator,X):
-
-        X = validate_data(
-            estimator,
-            X=X,
-            accept_sparse=False,
-            order="C",
-            accept_large_sparse=False,
-            reset=False,
-        )
-        return X
-else:
-    def _validate_predict_input_ext(estimator,X):
-        X = estimator._validate_data(
-            X, accept_sparse=False, order="C", accept_large_sparse=False, reset=False
-        )
-        return X
 class KernelNB(ClassifierMixin, BaseEstimator):
 
     def __init__(
@@ -150,7 +94,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
     
 
     def _create_cond_probs_kdes(self, X, y):
-        _check_n_features_internal(self,X, reset=True)
+        check_n_features_internal(self,X, reset=True)
         n_objects = X.shape[0]
         # Array of conditional probability estimators P(X|C)
         self.kernel_estimators_ = np.empty(
@@ -183,7 +127,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
                 raise ValueError("Unknown label type: {}".format(y.dtype))
 
     def _fit_validate(self, X, y):
-        return _validate_fit_external(self,X, y)
+        return validate_fit_external(self,X, y)
         
     def fit(self, X, y):
 
@@ -246,7 +190,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
 
     def _validate_predict_input(self, X):
         
-        X = _validate_predict_input_ext(self,X)
+        X = validate_predict_input_ext(self,X)
 
         check_is_fitted(
             self,
@@ -259,7 +203,7 @@ class KernelNB(ClassifierMixin, BaseEstimator):
             ),
         )
     
-        _check_n_features_internal(self, X, reset=False)
+        check_n_features_internal(self, X, reset=False)
 
         return X
 

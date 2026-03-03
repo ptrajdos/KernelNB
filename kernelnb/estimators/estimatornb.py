@@ -9,6 +9,9 @@ from scipy.special import softmax
 from scipy._lib._util import _asarray_validated
 from packaging import version
 
+from kernelnb.compat.sklearn_compat import check_n_features_internal, validate_fit_external, validate_predict_input_ext
+
+#import input validation functions from kernelnb/estimators/kernelnb.py
 
 class EstimatorNB(ClassifierMixin, BaseEstimator):
 
@@ -32,12 +35,7 @@ class EstimatorNB(ClassifierMixin, BaseEstimator):
         self.class_priors_ = np.log(counts / np.sum(counts))
 
     def _create_cond_probs_kdes(self, X, y):
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import _check_n_features
-            _check_n_features(estimator=self,X=X,reset=True)
-        else:
-            self._check_n_features(X, True)
+        check_n_features_internal(self,X, reset=True)
         n_objects = X.shape[0]
         # Array of conditional probability estimators P(X|C)
         self.estimators_ = np.empty(
@@ -72,32 +70,8 @@ class EstimatorNB(ClassifierMixin, BaseEstimator):
                 raise ValueError("Unknown label type: {}".format(y.dtype))
 
     def _fit_validate(self, X, y):
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import validate_data
-
-            X, y = validate_data(
-                self,
-                X=X,
-                y=y,
-                accept_sparse=False,
-                order="C",
-                accept_large_sparse=False,
-                y_numeric=False,
-                reset=True,
-            )
-            return X, y
-
-        X, y = self._validate_data(
-            X,
-            y,
-            accept_sparse=False,
-            order="C",
-            accept_large_sparse=False,
-            y_numeric=False,
-            reset=True,
-        )
-        return X, y
+        
+        return validate_fit_external(self,X, y)
 
     def fit(self, X, y):
 
@@ -158,24 +132,7 @@ class EstimatorNB(ClassifierMixin, BaseEstimator):
 
     def _validate_predict_input(self, X):
 
-        skl_version = sklearn.__version__
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import validate_data
-
-            X = validate_data(
-                self,
-                X=X,
-                accept_sparse=False,
-                order="C",
-                accept_large_sparse=False,
-                reset=False,
-            )
-        else:
-
-            X = self._validate_data(
-                X, accept_sparse=False, order="C", accept_large_sparse=False, reset=False
-            )
-
+        X = validate_predict_input_ext(self,X)
         check_is_fitted(
             self,
             (
@@ -186,11 +143,7 @@ class EstimatorNB(ClassifierMixin, BaseEstimator):
                 "estimators_",
             ),
         )
-        if version.parse(skl_version) >= version.parse("1.6"):
-            from sklearn.utils.validation import _check_n_features
-            _check_n_features(estimator=self,X=X,reset=False)
-        else:
-            self._check_n_features(X, False)
+        check_n_features_internal(self, X, reset=False)
 
         return X
 
