@@ -11,7 +11,6 @@ from packaging import version
 
 from kernelnb.compat.sklearn_compat import check_n_features_internal, validate_fit_external, validate_predict_input_ext
 
-#import input validation functions from kernelnb/estimators/kernelnb.py
 
 class EstimatorNB(ClassifierMixin, BaseEstimator):
 
