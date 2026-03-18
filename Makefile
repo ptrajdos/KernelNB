@@ -10,6 +10,7 @@ INSTALL_LOG_FILE=${ROOTDIR}/install.log
 VENV_SUBDIR=${ROOTDIR}/venv
 COVERAGERC=${ROOTDIR}/.coveragerc
 DOCS_DIR=${ROOTDIR}/docs
+TOXDIR=${ROOTDIR}/.tox
 
 COVERAGE = coverage
 UNITTEST_PARALLEL = unittest-parallel
@@ -19,12 +20,12 @@ SYSPYTHON=python
 PIP=pip
 PYTEST=pytest
 VENV_OPTIONS=
+TOX=tox
+TOX_CORES=auto
 
 LOGDIR=${ROOTDIR}/testlogs
 LOGFILE=${LOGDIR}/`date +'%y-%m-%d_%H-%M-%S'`.log
 
-
-PYTHON_VERSION=3.9
 
 ifeq ($(OS),Windows_NT)
 	ACTIVATE:=. ${VENV_SUBDIR}/Scripts/activate
@@ -34,8 +35,19 @@ endif
 
 .PHONY: all clean test docs
 
-clean:
-	rm -rf ${VENV_SUBDIR} pypackages
+all:profile 
+
+clean: clean_pypackages clean_venv clean_tox
+	@echo "Cleaning up build artifacts, virtual environments, and test logs..."
+
+clean_pypackages:
+	rm -rf pypackages
+
+clean_venv:
+	rm -rf ${VENV_SUBDIR}
+
+clean_tox:
+	rm -rf ${TOXDIR}
 
 venv:
 	${SYSPYTHON} -m venv --upgrade-deps ${VENV_OPTIONS} ${VENV_SUBDIR}
@@ -62,3 +74,6 @@ docs: pypackages
 profile: pypackages
 	
 	${ACTIVATE}; ${PYTEST} -n auto --cov-report=html --cov=${SRCDIR} --profile ${TESTDIR}
+
+tox_check: pypackages
+	${ACTIVATE}; ${TOX} -p ${TOX_CORES} 

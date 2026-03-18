@@ -14,10 +14,7 @@ setup(
                 'kernelnb.*',
                 ]),
         install_requires=[ 
-                'numpy>=1.22.4',
-                'joblib',
                 'scikit-learn>=1.2.2',
-                'packaging',
         ],
         test_suite='test'
         )
